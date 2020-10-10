@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.hbuas.programmer.dao.common.AccountDao">
+	
+	<!-- 商品插入操作 -->
+	<insert id="add" parameterType="Account">
+		insert into Account(id,name,password,email,trueName,sex,status,createTime)  
+		values(null,#{name},#{password},#{email},#{trueName},#{sex},#{status},#{createTime})
+	</insert>
+	
+	<!-- 批量删除商品 -->
+	<delete id="delete" parameterType="Long">
+		delete from Account where id = (${value})
+	</delete>
+	
+	<!-- 商品更新操作 -->
+	<update id="edit" parameterType="Account">
+		update Account set name = #{name},password = #{password},email = #{email},trueName = #{trueName},sex = #{sex},status=#{status} where id=#{id}
+	</update>
+
+	<!-- 商品分类信息模糊查询 -->
+	<select id="findList" parameterType="Map" resultType="Account">
+		select * from Account where 1 = 1 
+		<if test="name != null">
+			and name like '%${name}%' 
+		</if>
+		<if test="sex != null">
+			and sex = #{sex}  
+		</if>
+		<if test="status != null">
+			and status = #{status}  
+		</if>
+		<!-- 根据某些条件升序或降序 -->
+		<if test="orderBy != null and sort != null">
+			order by ${orderBy} ${sort} 
+		</if>
+		<if test="offset != null and pageSize != null">
+			limit #{offset},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 模糊搜索总记录数 -->
+	<select id="getTotal" parameterType="Map" resultType="Integer">
+		select count(*) from Account where 1 = 1 
+		<if test="name != null">
+			and name like '%${name}%' 
+		</if>
+		<if test="sex != null">
+			and sex = #{sex}  
+		</if>
+		<if test="status != null">
+			and status = #{status}  
+		</if>
+	</select>
+	
+	<!-- 根据id查询商品分类信息 -->
+	<select id="findById" parameterType="Long" resultType="Account">
+		select * from Account where id = #{value}
+	</select>
+	<!-- 根据用户名查询 -->
+	<select id="findByName" parameterType="String" resultType="Account">
+		select * from Account where name = #{value}
+	</select>
+	
+</mapper>

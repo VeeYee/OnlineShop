@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <!-- 是JavaWeb项目的入口，位置和文件名都是固定的。
+   		Tomcat只认web.xml配置文件，相当于媒介，将其他配置文件介绍给Tomcat --> 
+    
+    <!-- 1.中文乱码处理，过滤所有的请求，将所有的编码都规定为UTF-8 -->
+  	<filter>
+  		<!-- 过滤器的名字 -->
+  		<filter-name>CharacterEncodingFilter</filter-name>
+  		<!-- 指定由哪个类来实现过滤功能 -->
+  		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+  	
+  		<!-- 将用户提交的所有请求当中参数的值转换为UTF-8编码，避免出现中文乱码 -->
+  		<init-param>
+  			<param-name>encoding</param-name>
+  			<param-value>UTF-8</param-value>
+  		</init-param>
+  		<!-- 强制编码 -->
+  		<init-param>
+  			<param-name>forceEncoding</param-name>
+  			<param-value>true</param-value>
+  		</init-param>
+  	</filter>
+  	<!-- 配置映射，即指定用户发来的哪些请求需要使用此过滤器强制编码的 -->
+  	<filter-mapping>
+  		<filter-name>CharacterEncodingFilter</filter-name>
+  		<!-- 使用URL模式，/* 过滤所有的请求 -->
+  		<url-pattern>/*</url-pattern>
+  	</filter-mapping>
+  	
+  	<!-- 2.隐藏HTTP请求的方法，也可以不要 -->
+  	<filter>
+  		<filter-name>HiddenHttpMethodFilter</filter-name>
+  		<filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+  	</filter>
+  	
+  	<filter-mapping>
+  		<filter-name>HiddenHttpMethodFilter</filter-name>
+  		<url-pattern>/*</url-pattern>
+  	</filter-mapping>
+  
+  	<!-- 3.添加Spring的配置文件信息，告诉Tomcat配置文件的位置 -->
+  	<context-param>
+  		<param-name>contextConfigLocation</param-name>
+  		<param-value>classpath:config/spring/applicationContext.xml</param-value>
+  	</context-param>
+  	<!-- ContextLoaderListener监听器，监听applicationContext.xml配置文件的动作 -->
+  	<listener>
+  		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  	</listener>
+  	
+  	<!-- 4.添加日志配置文件的信息，告诉配置文件所在的位置（可在控制台打印日志信息） -->
+	  <context-param>
+	   <param-name>log4jConfigLocation</param-name>
+	   <param-value>classpath:config/log4j.properties</param-value>
+	</context-param>
+	<listener>
+	   <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
+  
+  	<!-- 5.配置前端控制器 -->
+	<servlet>
+		<!-- 视图分发器 -->
+		<servlet-name>DispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:config/springmvc/springmvc.xml</param-value>
+		</init-param>
+		<!-- 启动状态 -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>DispatcherServlet</servlet-name>
+		<!-- 默认的分发路径：从根目录开始，再找到指定的页面 -->
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 6.错误情况的处理 -->
+	<error-page>
+		<error-code>404</error-code>
+		<!-- 当发生404错误时，就显示404.jsp页面 -->
+		<location>/WEB-INF/errors/404.jsp</location>
+	</error-page>
+
+	<error-page>
+		<error-code>500</error-code>
+		<!-- 当发生500服务器内部错误时，就显示500.jsp页面 -->
+		<location>/WEB-INF/errors/500.jsp</location>
+	</error-page>
+  
+  	<!-- 7.项目启动时要显示的页面 -->
+	<welcome-file-list>
+		<!-- 可同时指定多个页面，依次从上往下找，找到即停止 -->
+    	<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+</web-app>

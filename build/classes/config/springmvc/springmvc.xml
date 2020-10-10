@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd">
+
+	<!-- 1.扫描包中用 @Controller 注解的类，添加到容器中 -->
+	<context:component-scan base-package="edu.hbuas.programmer.controller">
+	<context:include-filter type="annotation"
+		expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<!-- 2.配置视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+	<!-- 静态资源处理 -->
+	<mvc:default-servlet-handler/>
+	
+	<!-- 3.启动 mvc注解驱动 -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+	
+	
+	<!-- ******** 其他配置，需要时才添加 ******** -->
+	<!-- 启动定时任务，可不要 -->
+	<task:annotation-driven/>
+	
+	<!-- 文件上传，可不要 -->
+	<bean id="multipartResolver" 
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 上传文件大小限制 -->
+		<property name="maxUploadSize">  
+            <value>10485760</value>  
+        </property>  
+        <!-- 请求的编码格式, 和 jsp 页面一致 -->
+        <property name="defaultEncoding">
+            <value>UTF-8</value>
+        </property>
+	</bean>
+	
+	<!-- 拦截器 -->
+	<mvc:interceptors>
+		<!-- 后台登录拦截 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/admin/**"/>  <!-- 只过滤admin/下的 -->
+			<mvc:mapping path="/system/*"/>  <!-- 只过滤system/下的 -->
+			<!-- 登录和获取验证码的请求不要过滤，因为这是不需要判断用户是否已经登陆 -->
+			<mvc:exclude-mapping path="/system/login"/>  <!-- system/下的login和get_cpacha不要过滤 -->
+			<mvc:exclude-mapping path="/system/get_cpacha"/>
+			<mvc:exclude-mapping path="/resources/**"/>  <!-- resources/下的资源文件也不要过滤 -->
+			<!-- 指定了使用哪个过滤器 -->
+			<bean class="edu.hbuas.programmer.interceptor.admin.LoginInterceptor"></bean>
+		</mvc:interceptor>
+		<!-- 前台登录拦截，未登录前不可操作的链接 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/cart/*"/>  <!-- 拦截cart/下的 -->
+			<mvc:mapping path="/favorite/*"/>  <!-- 拦截favorite/下的 -->
+			<mvc:mapping path="/order/*"/>  <!-- 拦截order/下的 -->
+			<mvc:mapping path="/address/*"/>  <!-- 拦截address/下的 -->
+			<mvc:mapping path="/user/*"/>  <!-- 拦截user/下的 -->
+			<mvc:mapping path="/comment/*"/>  <!-- 拦截comment/下的 -->
+			<bean class="edu.hbuas.programmer.interceptor.home.LoginInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors> 
+</beans>

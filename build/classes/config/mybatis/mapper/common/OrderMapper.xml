@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.hbuas.programmer.dao.common.OrderDao">
+	
+	<!-- 订单插入操作 -->
+	<insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="Order">
+		insert into orders(id,sn,userId,address,money,productNum,status,remark,createTime)  
+		values(null,#{sn},#{userId},#{address},#{money},#{productNum},#{status},#{remark},#{createTime})
+	</insert>
+	
+	<!-- 订单子项插入操作 -->
+	<insert id="addItem" parameterType="OrderItem">
+		insert into order_item(id,orderId,productId,name,imageUrl,price,num,money)  
+		values(null,#{orderId},#{productId},#{name},#{imageUrl},#{price},#{num},#{money})
+	</insert>
+	
+	<!-- 批量删除订单 -->
+	<delete id="delete" parameterType="Long">
+		delete from orders where id = (${value})
+	</delete>
+	
+	<!-- 订单更新操作 -->
+	<update id="edit" parameterType="Order">
+		update orders set address = #{address},money = #{money},status = #{status},remark = #{remark} where id=#{id}
+	</update>
+
+	<!-- 订单分类信息模糊查询 -->
+	<select id="findList" parameterType="Map" resultType="Order">
+		select * from orders where 1 = 1 
+		<if test="sn != null">
+			and sn like '%${sn}%' 
+		</if>
+		<if test="userId != null">
+			and userId = #{userId}  
+		</if>
+		<if test="status != null">
+			and status = #{status}  
+		</if>
+		<!-- 按价格区间查找 -->
+		<if test="moneyMin != null">
+			and money &gt; #{moneyMin} 
+		</if>
+		<if test="moneyMax != null">
+			and money &lt; #{moneyMax} 
+		</if>
+		<!-- 根据某些条件升序或降序 -->
+		<if test="orderBy != null and sort != null">
+			order by ${orderBy} ${sort} 
+		</if>
+		<if test="offset != null and pageSize != null">
+			limit #{offset},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 模糊搜索总记录数 -->
+	<select id="getTotal" parameterType="Map" resultType="Integer">
+		select count(*) from orders where 1 = 1 
+		<if test="sn != null">
+			and sn like '%${sn}%' 
+		</if>
+		<if test="userId != null">
+			and userId = #{userId}  
+		</if>
+		<if test="status != null">
+			and status = #{status}  
+		</if>
+		<!-- 按价格区间查找 -->
+		<if test="moneyMin != null">
+			and money &gt; #{moneyMin} 
+		</if>
+		<if test="moneyMax != null">
+			and money &lt; #{moneyMax} 
+		</if>
+	</select>
+	
+	<!-- 根据id查询订单信息 -->
+	<select id="findById" parameterType="Long" resultType="Order">
+		select * from orders where id = #{value}
+	</select>
+	
+	<!-- 根据id查询订单子项信息 -->
+	<select id="findOrderItemList" parameterType="Long" resultType="OrderItem">
+		select * from order_item where orderId = #{value}
+	</select>
+	
+</mapper>

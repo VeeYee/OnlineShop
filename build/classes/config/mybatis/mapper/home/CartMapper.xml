@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.hbuas.programmer.dao.home.CartDao">
+	
+	<!-- 商品插入操作 -->
+	<insert id="add" parameterType="Cart">
+		insert into cart(id,productId,userId,name,imageUrl,price,num,money,createTime)  
+		values(null,#{productId},#{userId},#{name},#{imageUrl},#{price},#{num},#{money},#{createTime})
+	</insert>
+	
+	<!-- 批量删除商品 -->
+	<delete id="delete" parameterType="Long">
+		delete from cart where id = (${value})
+	</delete>
+	
+	<!-- 用户下单成功，根据用户Id清空购物车中的商品 -->
+	<delete id="deleteByUid" parameterType="Long">
+		delete from cart where userId = #{value}
+	</delete>
+	
+	<!-- 商品更新操作 -->
+	<update id="edit" parameterType="Cart">
+		update cart set num = #{num},money = #{money} where id=#{id}
+	</update>
+	
+	<!-- 商品分类信息模糊查询 -->
+	<select id="findList" parameterType="Map" resultType="Cart">
+		select * from cart where 1 = 1 
+		<if test="userId != null">
+			and userId = #{userId}  
+		</if>
+		<!-- 根据某些条件升序或降序 -->
+		<if test="orderBy != null and sort != null">
+			order by ${orderBy} ${sort} 
+		</if>
+		<if test="offset != null and pageSize != null">
+			limit #{offset},#{pageSize}
+		</if>
+	</select>
+	
+	<!-- 模糊搜索总记录数 -->
+	<select id="getTotal" parameterType="Map" resultType="Integer">
+		select count(*) from cart where 1 = 1 
+		<if test="userId != null">
+			and userId = #{userId}  
+		</if>
+	</select>
+	
+	<!-- 根据id查询商品分类信息 -->
+	<select id="findById" parameterType="Long" resultType="Cart">
+		select * from cart where id= #{value}
+	</select>
+	
+	<!-- 根据userId和productId查询商品，判断该用户是否已添加该商品到购物车 -->
+	<select id="findByIds" parameterType="Map" resultType="Cart">
+		select * from cart where userId= #{userId} and productId = #{productId}
+	</select>
+	
+</mapper>
